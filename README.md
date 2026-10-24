@@ -36,10 +36,10 @@ Tacomanda/
 
 ## 3. Cómo visualizar `swagger.json` paso a paso
 
-**Opción A: Swagger Editor (recomendada para la revisión docente).**
+**Opción A: Swagger Editor (recomendada).**
 
-1. Abre <https://editor.swagger.io/> en tu navegador.
-2. Descarga el archivo [`docs/swagger.json`](docs/swagger.json) desde este repositorio (en GitHub, abre el archivo y usa **Download raw file**).
+1. Abra <https://editor.swagger.io/> en tu navegador.
+2. Descargar el archivo [`docs/swagger.json`](docs/swagger.json) desde este repositorio (en GitHub, abre el archivo y usa **Download raw file**).
 3. En Swagger Editor, entra a **File → Import file** y selecciona `swagger.json`.
 4. Se mostrarán los grupos **Auth, Platillos, Mesas, Comandas, Cobros, Cierre de caja y Retroalimentación**.
 5. Expande un endpoint para consultar **método**, **ruta**, parámetros, **Request body**, **Responses** y esquemas JSON.
@@ -98,8 +98,8 @@ El servidor deberá obtener el identificador del mesero a partir del JWT, consul
 
 El archivo [`database/schema.sql`](database/schema.sql) define **10 tablas**: `empleados`, `mesas`, `platillos`, `productos`, `platillo_producto`, `comandas`, `detalle_comanda`, `pedidos`, `encuestas_cierre`, `retroalimentacion_app`. También incluye datos iniciales de mesas, productos, platillos y relaciones.
 
-Para crearla en un entorno **local de desarrollo** con MySQL 8 o posterior:
-1. Abre **MySQL Workbench** y conéctate a tu servidor local.
+Para crearla en un entorno **local de desarrollo** con MySQL:
+1. Ejecute **MySQL Workbench** y conéctate a tu servidor local.
 2. Ejecuta primero `database/schema.sql` (crea y selecciona la base `tacomanda`).
 3. Ejecuta después `database/seed-empleados.sql` (crea tres usuarios de **prueba**, si las claves aún no existen).
 4. Comprueba los registros con `USE tacomanda; SHOW TABLES; SELECT no_control, nombre, tipo_empleado FROM empleados;`.
