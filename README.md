@@ -129,33 +129,3 @@ MySQL
 ```
 Se planea utilizar **Clean Architecture, CQRS y SOLID**. En comandos, el flujo conceptual será `Controller → Command → Validator → Handler → Repository`; las consultas usarán `Query → Handler → Reader/Repository`. Las reglas de negocio y el acceso a datos deberán implementarse después.
 
-## 8. Diferencias detectadas y pendientes de decisión
-
-Este paquete mantiene los archivos originales de Swagger, SQL y flujos para conservar sus evidencias y añade una versión académica en blanco y negro de los flujos. Antes de desarrollar el backend es necesario revisar:
-
-- **Identidad en comandos:** el PDF CRC previo incluye el número de control en el cuerpo de algunas peticiones; `swagger.json` dispone que se obtenga del JWT. **El contrato Swagger es la referencia propuesta para la integración**.
-- **Cierre de caja:** `CierreCajaRequest` aún recibe `totalSistema` desde el cliente; conviene que la versión final lo calcule en el servidor. Esta modificación **no se aplicó al contrato original**.
-- **Autorización:** Swagger declara autenticación JWT, pero aún no documenta una matriz completa de autorización por rol ni respuestas `403` de cada operación.
-- **Cocina:** hay una interfaz de cocina, mientras que las cuentas de empleados descritas en el SQL son `admin`, `mesero` y `cajero`. La política de acceso de cocina sigue por acordarse.
-- **Ejecución:** falta programar controllers, validadores, handlers, repositorios, integración MySQL, pruebas y despliegue.
-
-Ver también [`docs/OBSERVACIONES_DEL_DISENO.md`](docs/OBSERVACIONES_DEL_DISENO.md).
-
-## 9. Publicar en GitHub y entregar el enlace
-
-Crea un repositorio público **vacío**, por ejemplo `Tacomanda` (no agregues README o licencia desde el formulario porque ya vienen aquí). Descomprime este paquete, entra a la carpeta `Tacomanda/` y ejecuta:
-```bash
-git init
-git add .
-git commit -m "Fase de diseño: contrato OpenAPI y documentación"
-git branch -M main
-git remote add origin https://github.com/TU-USUARIO/Tacomanda.git
-git push -u origin main
-```
-Cambia `TU-USUARIO` por tu usuario real de GitHub. Verifica el repositorio en una ventana de incógnito y entrega su URL; si habilitas GitHub Pages, puedes incluir también la URL de la página estática.
-
-## 10. ¿Qué se puede afirmar en la entrega?
-
-**Sí:** “Se diseñó y documentó una API REST en OpenAPI 3.0.3, con 16 operaciones, esquemas JSON, códigos de respuesta y autenticación JWT, además del modelo de datos y flujos CQRS/CRC”.
-
-**Todavía no:** “La API está desplegada, los controladores funcionan y Angular ya puede consumir las rutas”. Eso solo se podrá afirmar cuando exista el backend y se prueben las peticiones reales.
