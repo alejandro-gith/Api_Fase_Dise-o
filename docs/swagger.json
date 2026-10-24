@@ -1,0 +1,1457 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Tacomanda API",
+    "version": "1.0.0",
+    "description": "API REST de Tacomanda, sistema de comandas del restaurante Tacos Angy.\n\nArquitectura: Clean Architecture + CQRS + SOLID sobre ASP.NET Core. Cada operación de escritura es un Comando (Controller, Command, Validator, Handler, Repository) y cada lectura es una Consulta.\n\nEste documento es el contrato de la fase de diseño. La identidad de quien opera (número de control) se toma siempre del token JWT, nunca del cuerpo de la petición."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Servidor local de desarrollo (ajustar al puerto que muestre dotnet run)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Auth"
+    },
+    {
+      "name": "Platillos"
+    },
+    {
+      "name": "Mesas"
+    },
+    {
+      "name": "Comandas"
+    },
+    {
+      "name": "Cobros"
+    },
+    {
+      "name": "Cierre de caja"
+    },
+    {
+      "name": "Retroalimentación"
+    }
+  ],
+  "paths": {
+    "/api/auth/login": {
+      "post": {
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Iniciar sesión",
+        "operationId": "login",
+        "security": [],
+        "description": "Comando IniciarSesion. Valida el formato, verifica la contraseña y devuelve un token JWT con el rol del empleado.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Sesión iniciada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos con formato inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Número de control o contraseña incorrectos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/platillos": {
+      "get": {
+        "tags": [
+          "Platillos"
+        ],
+        "summary": "Listar platillos",
+        "operationId": "listarPlatillos",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Consulta ListarPlatillos. La usan las pantallas de Administrador y Mesero.",
+        "responses": {
+          "200": {
+            "description": "Lista de platillos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Platillo"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Platillos"
+        ],
+        "summary": "Crear platillo",
+        "operationId": "crearPlatillo",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando CrearPlatillo. Pantalla de Administrador.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlatilloRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Platillo creado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Platillo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/platillos/{id}": {
+      "put": {
+        "tags": [
+          "Platillos"
+        ],
+        "summary": "Actualizar platillo",
+        "operationId": "actualizarPlatillo",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando ActualizarPlatillo. También sirve para activar o desactivar un platillo.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlatilloRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Platillo actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Platillo"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el platillo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Platillos"
+        ],
+        "summary": "Eliminar platillo",
+        "operationId": "eliminarPlatillo",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando EliminarPlatillo. Si el platillo ya aparece en alguna comanda no se puede borrar y se recomienda desactivarlo.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Platillo eliminado"
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el platillo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "El platillo tiene comandas asociadas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/mesas": {
+      "get": {
+        "tags": [
+          "Mesas"
+        ],
+        "summary": "Listar mesas",
+        "operationId": "listarMesas",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Consulta ListarMesas. La usa la pantalla de Mesero.",
+        "responses": {
+          "200": {
+            "description": "Lista de mesas ordenadas por número",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Mesa"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comandas": {
+      "get": {
+        "tags": [
+          "Comandas"
+        ],
+        "summary": "Listar comandas",
+        "operationId": "listarComandas",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Consulta de comandas. Sin filtro regresa todas; con estado filtra. La usan Cocina (tablero) y Caja (comandas por cobrar).",
+        "parameters": [
+          {
+            "name": "estado",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/EstadoComanda"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de comandas",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Comanda"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Comandas"
+        ],
+        "summary": "Enviar comanda",
+        "operationId": "enviarComanda",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando EnviarComanda. Pantalla de Mesero. El número de control del mesero se toma del token y los precios los calcula el servidor.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EnviarComandaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Comanda creada en estado abierta",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ComandaCreada"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la mesa o algún platillo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comandas/{id}": {
+      "get": {
+        "tags": [
+          "Comandas"
+        ],
+        "summary": "Obtener una comanda",
+        "operationId": "obtenerComanda",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalle de la comanda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comanda"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la comanda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comandas/{id}/estado": {
+      "put": {
+        "tags": [
+          "Comandas"
+        ],
+        "summary": "Avanzar el estado de una comanda",
+        "operationId": "avanzarEstadoComanda",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando AvanzarEstadoDeComanda. Pantalla de Cocina. La transición válida es abierta, en_preparacion, lista, sin saltos.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EstadoComandaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Estado actualizado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Comanda"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Estado inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la comanda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Transición no permitida o comanda ya cerrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/comandas/{id}/cobrar": {
+      "post": {
+        "tags": [
+          "Cobros"
+        ],
+        "summary": "Cobrar una comanda",
+        "operationId": "cobrarComanda",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando CobrarComanda. Pantalla de Caja. Solo se puede cobrar una comanda en estado lista. El total y el cambio los calcula el servidor y se consultan en el ticket.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CobroRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cobro registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CobroRegistrado"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos o monto insuficiente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe la comanda",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "La comanda no está lista o ya fue cobrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/pedidos/{id}/ticket": {
+      "get": {
+        "tags": [
+          "Cobros"
+        ],
+        "summary": "Obtener el ticket de un cobro",
+        "operationId": "obtenerTicket",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Consulta ObtenerTicketDeCobro. Pantalla de Caja.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Datos del ticket",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Ticket"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No existe el pedido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cierre-caja": {
+      "get": {
+        "tags": [
+          "Cierre de caja"
+        ],
+        "summary": "Historial de cierres de caja",
+        "operationId": "listarCierres",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Cierres ordenados del más reciente al más antiguo",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CierreCaja"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Cierre de caja"
+        ],
+        "summary": "Registrar cierre de caja",
+        "operationId": "registrarCierreCaja",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando RegistrarCierreCaja. Pantalla de Administrador. La diferencia (totalContado menos totalSistema) la calcula el servidor.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CierreCajaRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Cierre registrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CierreCaja"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/retroalimentacion": {
+      "get": {
+        "tags": [
+          "Retroalimentación"
+        ],
+        "summary": "Historial de calificaciones de la app",
+        "operationId": "listarRetroalimentacion",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Calificaciones ordenadas de la más reciente a la más antigua",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Retroalimentacion"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Retroalimentación"
+        ],
+        "summary": "Calificar la app",
+        "operationId": "registrarRetroalimentacion",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "description": "Comando RegistrarRetroalimentacion. Calificación de 1 a 5 estrellas con comentario opcional. Disponible en todas las pantallas.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RetroalimentacionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Calificación registrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Retroalimentacion"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Datos inválidos",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationErrorResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token ausente o inválido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "Número de control o contraseña incorrectos"
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "ValidationErrorResponse": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "example": [
+              "El número de control debe ser numérico"
+            ]
+          }
+        },
+        "required": [
+          "errors"
+        ]
+      },
+      "RolEmpleado": {
+        "type": "string",
+        "enum": [
+          "admin",
+          "cajero",
+          "mesero"
+        ]
+      },
+      "EstadoComanda": {
+        "type": "string",
+        "enum": [
+          "abierta",
+          "en_preparacion",
+          "lista",
+          "cerrada",
+          "cancelada"
+        ]
+      },
+      "LoginRequest": {
+        "type": "object",
+        "required": [
+          "noControl",
+          "contrasena"
+        ],
+        "properties": {
+          "noControl": {
+            "type": "string",
+            "example": "1"
+          },
+          "contrasena": {
+            "type": "string",
+            "format": "password",
+            "example": "admin123"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": [
+          "token",
+          "noControl",
+          "nombre",
+          "rol",
+          "permisos"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT para el encabezado Authorization: Bearer"
+          },
+          "noControl": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string",
+            "example": "Administrador"
+          },
+          "rol": {
+            "$ref": "#/components/schemas/RolEmpleado"
+          },
+          "permisos": {
+            "type": "string",
+            "description": "Texto de permisos que responde cada subclase de Empleado"
+          }
+        }
+      },
+      "PlatilloRequest": {
+        "type": "object",
+        "required": [
+          "nombre",
+          "precio"
+        ],
+        "properties": {
+          "nombre": {
+            "type": "string",
+            "maxLength": 50,
+            "example": "Taco al pastor"
+          },
+          "categoria": {
+            "type": "string",
+            "maxLength": 25,
+            "example": "tacos"
+          },
+          "descripcion": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Piña, cilantro, cebolla"
+          },
+          "precio": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "example": 25.0
+          },
+          "emoji": {
+            "type": "string",
+            "example": "🌮"
+          },
+          "activo": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "Platillo": {
+        "type": "object",
+        "properties": {
+          "idPlatillo": {
+            "type": "integer",
+            "example": 1
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "descripcion": {
+            "type": "string"
+          },
+          "precio": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "activo": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Mesa": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "numero": {
+            "type": "integer",
+            "example": 1
+          },
+          "estado": {
+            "type": "string",
+            "enum": [
+              "libre",
+              "ocupada",
+              "reservada"
+            ]
+          }
+        }
+      },
+      "ItemComandaRequest": {
+        "type": "object",
+        "required": [
+          "idPlatillo",
+          "cantidad"
+        ],
+        "properties": {
+          "idPlatillo": {
+            "type": "integer",
+            "example": 1
+          },
+          "cantidad": {
+            "type": "integer",
+            "minimum": 1,
+            "example": 3
+          },
+          "nota": {
+            "type": "string",
+            "maxLength": 100,
+            "example": "Sin cebolla"
+          }
+        }
+      },
+      "EnviarComandaRequest": {
+        "type": "object",
+        "required": [
+          "mesaNumero",
+          "items"
+        ],
+        "properties": {
+          "mesaNumero": {
+            "type": "integer",
+            "example": 3
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/components/schemas/ItemComandaRequest"
+            }
+          }
+        }
+      },
+      "ComandaCreada": {
+        "type": "object",
+        "required": [
+          "idComanda"
+        ],
+        "properties": {
+          "idComanda": {
+            "type": "integer",
+            "example": 42
+          }
+        }
+      },
+      "DetalleComanda": {
+        "type": "object",
+        "properties": {
+          "idDetalle": {
+            "type": "integer"
+          },
+          "platillo": {
+            "$ref": "#/components/schemas/Platillo"
+          },
+          "cantidad": {
+            "type": "integer"
+          },
+          "nota": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "Comanda": {
+        "type": "object",
+        "properties": {
+          "idComanda": {
+            "type": "integer"
+          },
+          "mesa": {
+            "$ref": "#/components/schemas/Mesa"
+          },
+          "noControl": {
+            "type": "integer",
+            "description": "Mesero que abrió la comanda"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoComanda"
+          },
+          "detalles": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DetalleComanda"
+            }
+          }
+        }
+      },
+      "EstadoComandaRequest": {
+        "type": "object",
+        "required": [
+          "estado"
+        ],
+        "properties": {
+          "estado": {
+            "$ref": "#/components/schemas/EstadoComanda"
+          }
+        }
+      },
+      "CobroRequest": {
+        "type": "object",
+        "required": [
+          "tipoPago",
+          "tipoPedido",
+          "montoRecibido"
+        ],
+        "properties": {
+          "tipoPago": {
+            "type": "string",
+            "enum": [
+              "efectivo",
+              "tarjeta"
+            ]
+          },
+          "tipoPedido": {
+            "type": "string",
+            "enum": [
+              "comer_aqui",
+              "para_llevar"
+            ]
+          },
+          "montoRecibido": {
+            "type": "number",
+            "format": "decimal",
+            "minimum": 0,
+            "example": 100.0
+          }
+        }
+      },
+      "CobroRegistrado": {
+        "type": "object",
+        "required": [
+          "idPedido"
+        ],
+        "properties": {
+          "idPedido": {
+            "type": "integer",
+            "example": 17
+          }
+        }
+      },
+      "LineaTicket": {
+        "type": "object",
+        "properties": {
+          "platillo": {
+            "type": "string"
+          },
+          "cantidad": {
+            "type": "integer"
+          },
+          "subtotal": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "idPedido": {
+            "type": "integer"
+          },
+          "idComanda": {
+            "type": "integer"
+          },
+          "mesaNumero": {
+            "type": "integer"
+          },
+          "fecha": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lineas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LineaTicket"
+            }
+          },
+          "total": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "tipoPago": {
+            "type": "string"
+          },
+          "tipoPedido": {
+            "type": "string"
+          },
+          "cambio": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "CierreCajaRequest": {
+        "type": "object",
+        "required": [
+          "totalSistema",
+          "totalContado"
+        ],
+        "properties": {
+          "totalSistema": {
+            "type": "number",
+            "format": "decimal",
+            "example": 1250.0
+          },
+          "totalContado": {
+            "type": "number",
+            "format": "decimal",
+            "example": 1240.0
+          },
+          "huboIncidencias": {
+            "type": "boolean",
+            "default": false
+          },
+          "comentarios": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CierreCaja": {
+        "type": "object",
+        "properties": {
+          "idEncuesta": {
+            "type": "integer"
+          },
+          "noControl": {
+            "type": "integer"
+          },
+          "fechaHora": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "totalSistema": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "totalContado": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "diferencia": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "huboIncidencias": {
+            "type": "boolean"
+          },
+          "comentarios": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "RetroalimentacionRequest": {
+        "type": "object",
+        "required": [
+          "calificacion"
+        ],
+        "properties": {
+          "calificacion": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "example": 5
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "Retroalimentacion": {
+        "type": "object",
+        "properties": {
+          "idRetro": {
+            "type": "integer"
+          },
+          "noControl": {
+            "type": "integer"
+          },
+          "calificacion": {
+            "type": "integer"
+          },
+          "comentario": {
+            "type": "string",
+            "nullable": true
+          },
+          "fechaHora": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}

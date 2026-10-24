@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tacomanda | API en fase de diseño</title>
+<style>
+body{font-family:"Times New Roman",Times,serif;font-size:16px;line-height:1.45;background:#fff;color:#000;max-width:950px;margin:0 auto;padding:28px 22px}
+h1{font-size:26px;text-align:center}h2{font-size:21px;margin-top:28px}h3{font-size:18px}
+a{color:#000;text-decoration:underline}table{width:100%;border-collapse:collapse}th,td{border:1px solid #222;text-align:left;padding:8px;vertical-align:top}th{font-weight:bold}
+code{font-family:monospace;font-size:14px}.notice{border:1px solid #111;padding:12px;margin:20px 0}
+@media(max-width:620px){body{padding:12px}th,td{font-size:13px;padding:5px}code{font-size:12px}}
+</style></head><body>
+<h1>Tacomanda — Documentación de API</h1>
+<p>Proyecto de gestión de comandas para el restaurante Tacos Angy. Contrato <strong>OpenAPI 3.0.3</strong>, con 16 operaciones HTTP en 7 categorías.</p>
+<div class="notice"><strong>Estado: fase de diseño.</strong> Esta página muestra documentación, no una API activa. Los endpoints no procesan peticiones reales y todavía no existe un servidor ASP.NET Core implementado.</div>
+<h2>Documentación para revisión</h2>
+<p><a href="docs/swagger.json">Abrir/descargar contrato swagger.json</a> · <a href="docs/Documento_API_Tacomanda.pdf">Informe de diseño de API (PDF)</a> · <a href="docs/flujos-cqrs-crc_bn.pdf">Flujos CQRS y tarjetas CRC (blanco y negro)</a> · <a href="README.md">README completo</a></p>
+<p>Para visualizar peticiones, respuestas y modelos: visita <a href="https://editor.swagger.io/">editor.swagger.io</a>, selecciona <strong>File → Import file</strong> e importa <code>docs/swagger.json</code> que descargaste de aquí.</p>
+<h2>Catálogo de endpoints</h2><table><thead><tr><th>Método</th><th>Ruta</th><th>Operación</th></tr></thead><tbody><tr><td>POST</td><td><code>/api/auth/login</code></td><td>Iniciar sesión</td></tr>
+<tr><td>GET</td><td><code>/api/platillos</code></td><td>Listar platillos</td></tr>
+<tr><td>POST</td><td><code>/api/platillos</code></td><td>Crear platillo</td></tr>
+<tr><td>PUT</td><td><code>/api/platillos/{id}</code></td><td>Actualizar platillo</td></tr>
+<tr><td>DELETE</td><td><code>/api/platillos/{id}</code></td><td>Eliminar platillo</td></tr>
+<tr><td>GET</td><td><code>/api/mesas</code></td><td>Listar mesas</td></tr>
+<tr><td>GET</td><td><code>/api/comandas</code></td><td>Listar comandas</td></tr>
+<tr><td>POST</td><td><code>/api/comandas</code></td><td>Enviar comanda</td></tr>
+<tr><td>GET</td><td><code>/api/comandas/{id}</code></td><td>Obtener una comanda</td></tr>
+<tr><td>PUT</td><td><code>/api/comandas/{id}/estado</code></td><td>Avanzar el estado de una comanda</td></tr>
+<tr><td>POST</td><td><code>/api/comandas/{id}/cobrar</code></td><td>Cobrar una comanda</td></tr>
+<tr><td>GET</td><td><code>/api/pedidos/{id}/ticket</code></td><td>Obtener el ticket de un cobro</td></tr>
+<tr><td>GET</td><td><code>/api/cierre-caja</code></td><td>Historial de cierres de caja</td></tr>
+<tr><td>POST</td><td><code>/api/cierre-caja</code></td><td>Registrar cierre de caja</td></tr>
+<tr><td>GET</td><td><code>/api/retroalimentacion</code></td><td>Historial de calificaciones de la app</td></tr>
+<tr><td>POST</td><td><code>/api/retroalimentacion</code></td><td>Calificar la app</td></tr></tbody></table>
+<h2>Arquitectura prevista</h2><p>Angular → peticiones HTTP/JSON con JWT → ASP.NET Core API → Application (CQRS) y Domain → Infrastructure (EF Core) → MySQL.</p>
+<h2>Alcance</h2><p>La documentación establece la interfaz prevista entre frontend y backend. La conexión con MySQL, las respuestas HTTP reales y la autorización completa por roles quedan para la implementación.</p>
+</body></html>
